@@ -1,0 +1,171 @@
+<div *ngIf="asyncProccess || isGettingSchool" class="d-flex justify-content-center align-items-center spinner-position">
+  <div class="spinner-border text-light" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+<div class="d-flex flex-column justify-content-between vh-100">
+  <div *ngIf="!isGettingSchool" class="container-fluid mt-1">
+    <div class="row h-100 mh-700p justify-content-center align-items-stretch">
+      <div style="height: 165px;" class="col-12 d-flex justify-content-between">
+        <div class="d-flex flex-column flex-sm-row align-items-center justify-content-start h-100 w-80">
+          <img [src]="'/assets/img/athena.png'" class="card-img-top img-fluid h-75 sge-logo-w" alt="School" style="object-fit: contain;">
+          <h5 class="d-none d-md-block text-center sge-font">SISTEMA DE GESTIÓN ESCOLAR</h5>
+          <h5 class="d-md-none text-center sge-font">{{schoolName | uppercase}}</h5>
+        </div>
+        <div class="d-flex flex-column align-items-end justify-content-center h-100">
+          <p>{{ currentDate | date:'dd/MM/YYYY hh:mm a' }}</p>
+          <p>V{{version}}</p>
+        </div>
+      </div>
+      <div class="col-12 col-md-5 mb-3 mb-md-0">
+        <div class="card py-3 px-2">
+          <div class="card-body">
+            <h5 class="card-title text-center mt-3 mb-3 fs-welcome">Bienvenido</h5>
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+              <div class="form-group mb-5">
+                <label class="mb-3" for="dni">Documento de identidad</label>
+                <input type="text" class="form-control" formControlName="dni" id="dni">
+              </div>
+              <div class="form-group mb-5 position-relative">
+                <label class="mb-3" for="password">Contraseña</label>
+                <input type="password" class="form-control pr-5" formControlName="password" id="password"
+       appBootstrapTooltip tooltipTitle="En caso de ser tu primer inicio de sesión, tu contraseña será tu documento de identidad">
+                <i [class]="'fi position-absolute top-60-px end-0 translate-middle-y pe-2 ' + currentEyePassword['password']"
+                   style="cursor: pointer; right: 10px;" (click)="togglePasswordVisibility('password')"></i>
+              </div>
+              <button [disabled]="asyncProccess || !loginForm.valid" [style.backgroundColor]="'#' + color"
+                [style.borderColor]="'#' + color" type="submit"
+                class="btn btn-primary btn-block mt-4 w-100"><i class="fi fi-br-sign-in-alt btn-icon"></i>{{' '}}<span>Ingresar</span></button>
+              <a href="#" class="d-block text-center mt-2 small" (click)="forgottenPassword($event)">¿Olvidaste tu contraseña?</a>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div style="height: 479px;" class="col-12 col-md-7 d-none d-md-flex justify-content-center align-items-center">
+        <div class="card p-3 text-center h-100 w-100">
+          <h5 class="card-title text-center mt-3 mb-3 fs-welcome">{{schoolName}}</h5>
+          <img [src]="imgURL" class="card-img-top img-fluid h-100-img" alt="School" style="object-fit: contain; ">
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div style="height: 10%;"><app-footer></app-footer></div>
+</div>
+
+<div class="modal" #changePasswordModal tabindex="-1" id="myModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Para continuar, por favor actualice su contraseña</h5>
+        <button type="button" class="btn-close text-reset" aria-label="Close"
+            (click)="cancelChangePassword()"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="changePasswordFirstTimeForm" (ngSubmit)="submitNewPassword()">
+          <div class="form-group position-relative">
+            <label for="currentPassword">Contraseña anterior</label>
+            <input type="password" id="currentPassword" class="form-control" formControlName="currentPassword">
+            <i [class]="'fi position-absolute top-45-px end-0 translate-middle-y pe-2 ' + currentEyePassword['currentPassword']" style="cursor: pointer; right: 10px;" (click)="togglePasswordVisibility('currentPassword')"></i>
+          </div>
+          <div class="form-group position-relative">
+            <label for="newPassword">Contraseña nueva</label>
+            <input type="password" id="newPassword" class="form-control" formControlName="newPassword">
+            <i [class]="'fi position-absolute top-45-px end-0 translate-middle-y pe-2 ' + currentEyePassword['newPassword']" style="cursor: pointer; right: 10px;" (click)="togglePasswordVisibility('newPassword')"></i>
+            <div *ngIf="changePasswordFirstTimeForm.get('newPassword')?.errors">
+              <div class="text-danger"
+                *ngIf="showErrors && changePasswordFirstTimeForm.get('newPassword')?.errors?.['required']">
+                <small>Este campo es requerido.</small>
+              </div>
+              <div class="text-danger"
+                *ngIf="showErrors && changePasswordFirstTimeForm.get('newPassword')?.errors?.['minlength']">
+                <small>La contraseña debe tener al menos 8 caracteres.</small>
+              </div>
+              <div class="text-danger"
+                *ngIf="showErrors && changePasswordFirstTimeForm.get('newPassword')?.errors?.['maxlength']">
+                <small>La contraseña no puede tener más de 10 caracteres.</small>
+              </div>
+              <div class="text-danger"
+                *ngIf="showErrors && changePasswordFirstTimeForm.get('newPassword')?.errors?.['pattern']">
+                <small>La contraseña debe contener al menos un número, una mayúscula y una minúscula.</small>
+              </div>
+              <div class="text-danger"
+                *ngIf="showErrors && changePasswordFirstTimeForm.get('confirmPassword')?.errors?.['NoPassswordMatch']">
+                <small>Las
+                  contraseñas no coinciden.</small>
+              </div>
+
+              <div class="text-danger"
+                *ngIf="showErrors && changePasswordFirstTimeForm.get('newPassword')?.errors?.['LastPasswordMatch']">
+                <small>
+                  La contraseña debe ser distinta a la anterior.</small>
+              </div>
+            </div>
+          </div>
+          <div class="form-group position-relative">
+            <label for="confirmPassword">Repetir contraseña nueva</label>
+            <input type="password" id="confirmPassword" class="form-control" formControlName="confirmPassword">
+            <i [class]="'fi position-absolute top-45-px end-0 translate-middle-y pe-2 ' + currentEyePassword['confirmPassword']" style="cursor: pointer; right: 10px;" (click)="togglePasswordVisibility('confirmPassword')"></i>
+            <div *ngIf="changePasswordFirstTimeForm.get('confirmPassword')?.errors">
+              <div class="text-danger" *ngIf="changePasswordFirstTimeForm.get('confirmPassword')?.errors?.['required']">
+                <small>Este campo es requerido.</small>
+              </div>
+              <div class="text-danger"
+                *ngIf="changePasswordFirstTimeForm.get('confirmPassword')?.errors?.['minlength']"><small>La contraseña
+                  debe tener al menos 8 caracteres.</small></div>
+              <div class="text-danger"
+                *ngIf="changePasswordFirstTimeForm.get('confirmPassword')?.errors?.['maxlength']"><small>La contraseña
+                  no puede tener más de 10 caracteres.</small></div>
+              <div class="text-danger" *ngIf="changePasswordFirstTimeForm.get('confirmPassword')?.errors?.['pattern']">
+                <small>La contraseña debe contener al menos un número, una mayúscula y una minúscula.</small>
+              </div>
+              <div class="text-danger"
+                *ngIf="changePasswordFirstTimeForm.get('confirmPassword')?.errors?.['NoPassswordMatch']"><small>Las
+                  contraseñas no coinciden.</small></div>
+
+              <div class="text-danger"
+                *ngIf="showErrors && changePasswordFirstTimeForm.get('confirmPassword')?.errors?.['LastPasswordMatch']">
+                <small>
+                  La contraseña debe ser distinta a la anterior.</small>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" (click)="submitNewPassword()"
+          [style.backgroundColor]="'#' + color" [style.borderColor]="'#' + color"
+          [disabled]="!changePasswordFirstTimeForm.valid"><i class="fi fi-tr-user-key"></i> Cambiar contraseña</button>
+          <button type="button" class="btn btn-danger" (click)="cancelChangePassword()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" #passwordForgottenModal tabindex="-1" id="passwordForgottenModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Recuperar contraseña</h5>
+        <button type="button" class="btn-close text-reset" aria-label="Close"
+          (click)="onCloseResetPasswordModal()"></button>
+      </div>
+      <!--Acá solamente se muestra un input para poner el DNI y un botón para hacer submit-->
+      <div class="modal-body">
+        <form [formGroup]="passwordForgottenForm" (ngSubmit)="submitPasswordForgotten()">
+          <div class="form-group">
+            <label for="dni">Documento de identidad</label>
+            <input type="text" id="dni" class="form-control" formControlName="dni">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" (click)="submitPasswordForgotten()"
+          [style.backgroundColor]="'#' + color" [style.borderColor]="'#' + color"
+          [disabled]="!passwordForgottenForm.valid"><i class="fi fi-tr-user-key"></i> Recuperar contraseña</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<a id="hiddenAnchor" [routerLink]="routeToNavigate" style="display: none;"></a>

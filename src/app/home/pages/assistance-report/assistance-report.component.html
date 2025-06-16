@@ -1,0 +1,103 @@
+<div *ngIf="asyncProccess" class="d-flex justify-content-center align-items-center spinner-position">
+    <div class="spinner-border text-light" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+
+<div class="container mt-4 overflow-auto" style="height: 100%; width: 100%;">
+    <div class="row justify-content-center">
+
+        <div class="col-12 d-flex justify-content-center align-items-center text-center mb-1">
+            <h4>{{routes[route].name || 'Reportes asistencia'}}:</h4>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12 col-md-{{(12 / count) + ''}}">
+            Seleccionar curso
+            <div class="position-relative">
+                <select (focus)="onFocusCourseDropdown()" (blur)="onBlurCourseDropdown()" (change)="onChangeCourse($event)" [(ngModel)]="selectedCourse" class="form-control mb-2">
+                    <option *ngFor="let course of courses" [selected]="course.id == selectedCourse" [value]="course.id">
+                        {{course.name}}
+                    </option>
+                </select>
+                <i class="fi position-absolute top-50 end-0 translate-middle-y me-2"
+                   [ngClass]="{'fi-rr-angle-small-up': isCourseDropdownOpen, 'fi-rr-angle-small-down': !isCourseDropdownOpen}"></i>
+            </div>
+        </div>
+    
+        <div *ngIf="routes[route].schoolSubject" class="col-12 col-md-{{(12 / count) + ''}}">
+            Seleccionar Materia
+            <div class="position-relative">
+                <select (focus)="onFocusSchoolSubjectDropdown()" (blur)="onBlurSchoolSubjectDropdown()" (change)="onChangeSchoolSubject($event)" [(ngModel)]="selectedSchoolSubject" class="form-control mb-2">
+                    <option *ngFor="let schoolSubject of schoolSubjects" [selected]="schoolSubject.id == selectedCourse" [value]="schoolSubject.id">
+                        {{schoolSubject.name}}
+                    </option>
+                </select>
+                <i class="fi position-absolute top-50 end-0 translate-middle-y me-2"
+                   [ngClass]="{'fi-rr-angle-small-up': isSchoolSubjectDropdownOpen, 'fi-rr-angle-small-down': !isSchoolSubjectDropdownOpen}"></i>
+            </div>
+        </div>
+    
+        <div *ngIf="routes[route].student" class="col-12 col-md-{{(12 / count) + ''}}">
+            Seleccionar Estudiante
+            <div class="position-relative">
+                <select (focus)="onFocusStudentDropdown()" (blur)="onBlurStudentDropdown()" (change)="onChangeStudent($event)" [(ngModel)]="selectedStudent" class="form-control mb-2">
+                    <option *ngFor="let student of students" [selected]="student.id == selectedStudent" [value]="student.id">
+                        {{student.name}}
+                    </option>
+                </select>
+                <i class="fi position-absolute top-50 end-0 translate-middle-y me-2"
+                   [ngClass]="{'fi-rr-angle-small-up': isStudentDropdownOpen, 'fi-rr-angle-small-down': !isStudentDropdownOpen}"></i>
+            </div>
+        </div>
+
+
+        <div *ngIf="routes[route].currentYear" class="col-12 col-md-{{(12 / count) + ''}}">
+            Seleccionar Año
+            <div class="position-relative">
+                <select (focus)="onFocusYearDropdown()" (blur)="onBlurYearDropdown()" (change)="onChangeYear($event)" [(ngModel)]="selectedYear" class="form-control mb-2">
+                    <option *ngFor="let year of years" [selected]="year == selectedYear" [value]="year">{{year}}</option>
+                </select>
+                <i class="fi position-absolute top-50 end-0 translate-middle-y me-2"
+                   [ngClass]="{'fi-rr-angle-small-up': isYearDropdownOpen, 'fi-rr-angle-small-down': !isYearDropdownOpen}"></i>
+            </div>
+        </div>
+
+
+        <div *ngIf="routes[route].frequence" class="col-12 col-md-{{(12 / count) + ''}}">
+            Frecuencia
+            <div class="position-relative">
+                <select (focus)="onFocusFrequenceDropdown()" (blur)="onBlurFrequenceDropdown()" (change)="onChangeFrequence($event)" [(ngModel)]="selectedFrequence" class="form-control mb-2">
+                    <option [selected]="selectedFrequence == 0" [value]="0">ANUAL</option>
+                    <option [selected]="selectedFrequence == 1" [value]="1">1er trimestre</option>
+                    <option [selected]="selectedFrequence == 2" [value]="2">2do trimestre</option>
+                    <option [selected]="selectedFrequence == 3" [value]="3">3er trimestre</option>
+                </select>
+                <i class="fi position-absolute top-50 end-0 translate-middle-y me-2"
+                   [ngClass]="{'fi-rr-angle-small-up': isFrequenceDropdownOpen, 'fi-rr-angle-small-down': !isFrequenceDropdownOpen}"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center align-items-center">
+
+        <button [style.backgroundColor]="'#' + color" [style.borderColor]="'#' + color" (click)="generateReport()"
+            class="btn btn-primary me-2"><i class="fi fi-rr-search btn-icon"></i> Realizar consulta</button>
+
+
+        <button (click)="downloadReport()" class="btn btn-primary ms-2" [disabled]="!isDownloadEnabled"> <i class="fi fi-rr-download"></i> Descargar reporte</button>
+
+    </div>
+
+    <div class="row mt-4" *ngIf="showChart">
+        <div class="col-12 d-flex justify-content-center">
+            <div style="width: fit-content;">
+                <p><strong>Porcentaje de asistencia:</strong></p>
+                <div id="chartContainer" style="height: 300px; width: 100%;">
+                    <canvas #chartCanvas></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,44 @@
+<!-- Contenedor del icono de usuario -->
+<div class="dropdown mt-1 me-1">
+    <div class="d-flex align-items-center justify-content-center p-3 rounded-circle"
+        style="width: 50px; height: 50px; cursor: pointer;" id="dropdownMenuButton" data-bs-toggle="dropdown"
+        [style.backgroundColor]="'#' + color" [style.borderColor]="'#' + color"
+        aria-expanded="false">
+        <i class="fi fi-sr-user" style="color: white;"></i>
+    </div>
+
+    <!-- Menú desplegable del usuario -->
+    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+        <!-- Foto de perfil -->
+        <img [src]="photo" style="width: 66px; height: 66px;" class="img-fluid rounded-circle mx-auto d-block mb-3"
+            alt="Foto de perfil">
+
+        <!-- Información del usuario -->
+        <div class="user-info">
+            <div class="user-info-section mb-2">
+                <p class="dropdown-item-text mb-0">Nombre Completo</p>
+                <h6 class="dropdown-header fs-1-rem"><strong>{{fullName}}</strong></h6>
+            </div>
+            <div class="user-info-section mb-2">
+                <p class="dropdown-item-text mb-0">Correo electrónico</p>
+                <h6 class="dropdown-header fs-1-rem">{{mail}}</h6>
+            </div>
+            <div class="user-info-section mb-2">
+                <p class="dropdown-item-text mb-0">Tipo de usuario</p>
+                <h6 class="dropdown-header fs-1-rem">{{role}}</h6>
+            </div>
+            <div class="user-info-section mb-2">
+                <p class="dropdown-item-text mb-0">Documento</p>
+                <h6 class="dropdown-header fs-1-rem">{{dni}}</h6>
+            </div>
+            <div class="user-info-section mb-2" *ngIf="showCourse">
+                <p class="dropdown-item-text mb-0">Curso</p>
+                <h6 class="dropdown-header fs-1-rem">{{course}}</h6>
+            </div>
+        </div>
+
+        <!-- Botón de cerrar sesión -->
+        <button [style.backgroundColor]="'#' + color" [style.borderColor]="'#' + color" (click)="logout()"
+        class="btn btn-primary btn-block mt-0 w-90 centered-button"><i class="fi fi-ss-sign-out-alt btn-icon"></i> Cerrar sesión</button>
+    </div>
+</div>

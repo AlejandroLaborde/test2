@@ -1,0 +1,159 @@
+<div *ngIf="asyncProccess" class="d-flex justify-content-center align-items-center spinner-position">
+    <div class="spinner-border text-light" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+
+<div class="container-fluid mt-4 overflow-auto" style="height: 100%; width: 100%;">
+    <div class="row justify-content-center">
+        <div class="col-12 text-center">
+            <h4>Carga masiva</h4>
+        </div>
+
+        <div class="row">
+            <div *ngFor="let card of cards; let i = index" [ngClass]="{'col-12 col-md-6 mt-4 d-flex': true, 'mx-auto': i === cards.length - 1 && cards.length % 2 !== 0}">
+                <div class="card flex-grow-1 d-flex flex-column">
+                    <div class="card-body text-center d-flex flex-column justify-content-between" style="overflow: hidden;">
+                        <h5 class="card-title">{{card.title}}</h5>
+                        <input type="file" id="fileInput-{{card.type}}" style="display: none"
+                            (change)="handleFileInput($event, card.type)" accept=".{{card.type}}" />
+                        <button [style.backgroundColor]="'#' + color" [style.borderColor]="'#' + color"
+                            class="btn btn-primary btn-block mt-2 mt-md-0 w-100"
+                            (click)="openFileSelector(card.link, card.type)"><i class="fi btn-icon" [ngClass]="{
+                                'fi-rs-file-excel': card.type == 'xlsx',
+                                'fi-ts-png-file': card.type == 'png'
+                            }"></i> {{card.type == 'png' ? 'Importar PNG' :
+                            'Importar XLSX'}}</button>
+                        <div *ngIf="card.validations">
+                            <p class="mt-1">
+                                Error en la validación.
+                                <a (click)="card.modal()" style="color: red; text-decoration: underline; cursor: pointer;">
+                                    Ver detalles
+                                </a>
+                            </p>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center flex-grow-1">
+                            <p *ngIf="card.type != 'png'" class="mt-2">¿Necesitas un ejemplo? <a href="javascript:void(0)"
+                                    (click)="getExample(card.link)">Descargalo acá</a></p>
+                            <p *ngIf="card.type == 'png'" class="mt-2">¿Necesitas tu firma? <a href="https://es.mysignature.io/draw-signature-online" target="_blank">Creala acá</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal" #userValidationsModal tabindex="-1" id="userValidationsModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Validaciones</h5>
+                <button type="button" class="btn-close text-reset" aria-label="Close"
+                    (click)="closeUserModal()"></button>
+            </div>
+            <div class="modal-body">
+                <div *ngFor="let validation of cards[0].validations">
+                    <h6>DNI o LEGAJO: {{ validation.dniOrFile }}</h6>
+                    <ul>
+                        <li *ngFor="let error of validation.validations">{{ error }}</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" (click)="closeUserModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" #schoolValidationsModal tabindex="-1" id="schoolValidationsModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Validaciones de la Escuela</h5>
+                <button type="button" class="btn-close text-reset" aria-label="Close"
+                    (click)="closeSchoolModal()"></button>
+            </div>
+            <div class="modal-body">
+                <div *ngFor="let validation of cards[2].validations">
+                    <ul>
+                        <li>{{ validation }}</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" (click)="closeSchoolModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" #courseValidationsModal tabindex="-1" id="courseValidationsModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Validaciones de los Cursos</h5>
+                <button type="button" class="btn-close text-reset" aria-label="Close"
+                    (click)="closeCourseModal()"></button>
+            </div>
+            <div class="modal-body">
+                <div *ngFor="let course of cards[3].validations">
+                    <ul>
+                        <li *ngFor="let validation of course.validations">{{ validation }}</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" (click)="closeCourseModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" #courseStudentValidationsModal tabindex="-1" id="courseStudentValidationsModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Validaciones de Cursos y Alumnos</h5>
+                <button type="button" class="btn-close text-reset" aria-label="Close"
+                    (click)="closeCourseStudentModal()"></button>
+            </div>
+            <div class="modal-body">
+                <div *ngFor="let course of cards[4].validations">
+                    <p>Falló la importación de {{course.entity}}: {{course.entityName}}</p>
+                    <ul>
+                        <li *ngFor="let validation of course.validations">{{ validation }}</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" (click)="closeCourseStudentModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" #courseTeacherValidationsModal tabindex="-1" id="courseTeacherValidationsModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Validaciones de Cursos y Alumnos</h5>
+                <button type="button" class="btn-close text-reset" aria-label="Close"
+                    (click)="closeCourseTeacherModal()"></button>
+            </div>
+            <div class="modal-body">
+                <div *ngFor="let course of cards[5].validations">
+                    <p>Falló la importación de {{course.reg}}</p>
+                    <ul>
+                        <li *ngFor="let validation of course.validations">{{ validation }}</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" (click)="closeCourseTeacherModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>

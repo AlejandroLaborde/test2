@@ -1,0 +1,7 @@
+.small-text {
+    font-size: 0.8rem; /* Ajusta el tamaño de la fuente según tus necesidades */
+  }
+  
+  .small-text p {
+    margin: 0; /* Elimina el margen de los párrafos */
+  }

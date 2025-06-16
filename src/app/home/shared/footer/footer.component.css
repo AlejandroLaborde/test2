@@ -1,0 +1,60 @@
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .footer-logo {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+  }
+  
+  .footer-left {
+    display: flex;
+    align-items: center;
+  }
+  
+  .footer-right i {
+    font-size: 24px; /* Ajusta el tamaño de los logos */
+    margin: 0 10px; /* Añade un margen a los lados de los logos para espaciarlos */
+  }
+
+  a {
+    color: inherit; /* Mantiene el color del texto padre */
+    text-decoration: none; /* Elimina el subrayado */
+  }
+  
+  a:hover {
+    text-decoration: none; /* Asegura que no haya subrayado al pasar el ratón */
+  }
+
+  .d-lg-block-1079 {
+    @media (min-width: 1079px) {
+      display: block !important;
+    }
+  }
+
+  .flex-lg-row-1079 {
+    @media (min-width: 1079px) {
+      flex-direction: row !important;
+    }
+  }
+
+  .me-lg-1079-0 {
+    @media (min-width: 1079px) {
+      margin-right: 0 !important;
+    }
+  }
+
+  .mb-05rem-on-lg {
+    @media (min-width: 1079px) {
+      margin-bottom: 0.5rem !important;
+    }
+  }
+
+  @media (min-width: 1079px) {
+    .mb-05rem-on-lg {
+      margin-bottom: 0.5rem !important;
+    }
+  }

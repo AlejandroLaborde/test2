@@ -1,0 +1,126 @@
+
+
+.spinner-position {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2000;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.fixed-width-button {
+    width: 45px; /* Ajusta el ancho según tus necesidades */
+    height: 33.2px;
+  }
+  
+  .btn-group .btn {
+    margin-right: 0.5rem; /* Espaciado entre los botones */
+  }
+  
+  .btn-group .btn:last-child {
+    margin-right: 0; /* Elimina el margen del último botón */
+  }
+
+  .btn-animations {
+      // debe agrandar al hacer hover
+      &:hover {
+          transform: scale(1.02);
+      }
+
+      // debe achicarse al hacer clic y mantener presionado
+      &:active {
+          transform: scale(0.98);
+      }
+  }
+
+  .lighter-green-button {
+    background-color: #51A351;
+    color: white;
+
+    &:hover {
+        // necesito imitar la funcionalidad de bootstrap
+        background-color: #438843;
+    }
+
+    &:active {
+        // necesito imitar la funcionalidad de bootstrap
+        background-color: #438843;
+    }
+  }
+
+  .beautiful-yellow-button {
+    background-color: #e5e855e2;
+    // tiene que ser negro porque si no no se ve
+    color: black;
+
+    &:hover {
+        // necesito imitar la funcionalidad de bootstrap
+        background-color: #d4d64ee2;
+    }
+
+    &:active {
+        // necesito imitar la funcionalidad de bootstrap
+        background-color: #d4d64ee2;
+    }
+  }
+
+  .text-container {
+      text-align: center;
+      text-align: left;
+  }
+  
+  @media (min-width: 768px) {
+      .text-container {
+          text-align: left;
+      }
+  }
+
+  .mr-student-lower-ten {
+    margin-right: 12px;
+  }
+
+
+
+.mr-course-lower-ten {
+    margin-right: 12px;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+.btn-icon {
+    vertical-align: middle;
+  }
+
+  .disabled-modif-button:disabled {
+    background-color: #b8b8b8 !important;
+  }
+
+  .orange-color {
+    background-color: orange;
+  }
+
+  .status-legend {
+    text-align: right;
+    margin-bottom: 0.3rem; /* Espacio debajo de la leyenda */
+    font-weight: bold; /* Opcional: para resaltar la leyenda */
+    font-size: 13px;
+  }
+
+  .btn-success-dark {
+    background-color: #146c43 !important; /* Un poco más oscuro que #198754 */
+  }
+  
+  .btn-danger-dark {
+    background-color: #a71d2a !important; /* Un poco más oscuro que #dc3545 */
+  }
+  
+  .orange-color-dark {
+    background-color: #cc8400 !important; /* Un poco más oscuro que 'orange' */
+  }
+  
+  .btn-primary-dark {
+    background-color: #0a58ca !important; /* Un poco más oscuro que #0d6efd */
+  }

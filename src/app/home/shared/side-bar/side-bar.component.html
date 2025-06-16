@@ -1,0 +1,70 @@
+<!-- Botón para abrir el sidebar -->
+<button class="btn btn-primary" type="button" [style.backgroundColor]="'#' + color" [style.borderColor]="'#' + color" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar"
+  aria-controls="offcanvasSidebar" >
+  <i class="fi fi-br-menu-burger"></i>
+</button>
+
+<!-- Sidebar colapsado -->
+<!-- <div class="sidebar-collapsed" *ngIf="!isSidebarOpen">
+  
+  <img [src]="'assets/img/school.jpg'" class="card-img-top img-fluid" alt="School" style="width: 50px; height: 50px;">
+  <hr>
+
+  <a [routerLink]="['/home/bulk-upload']" routerLinkActive="active-link" [ngStyle]="{'background-color': router.isActive('/home/bulk-upload', true) ? '#' + color : ''}">
+    <i class="fi fi-sr-upload"></i>
+  </a>
+  <hr>
+  <a [routerLink]="['/home/reset-password']" routerLinkActive="active-link" [ngStyle]="{'background-color': router.isActive('/home/reset-password', true) ? '#' + color : ''}">
+    <i class="fi fi-rr-password"></i>
+  </a>
+  <hr>
+</div> -->
+
+<!-- Sidebar -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasSidebar" aria-labelledby="offcanvasSidebarLabel">
+  <div class="offcanvas-header d-flex align-items-center w-100">
+    <!-- Imagen -->
+    <img [src]="imgURL" class="card-img-top img-fluid me-3" alt="School" style="width: 50px; height: 50px;">
+
+    <!-- Título y Botón -->
+    <div class="d-flex flex-grow-1 align-items-center justify-content-between">
+      <h5 class="offcanvas-title" id="offcanvasSidebarLabel">{{schoolName}}</h5>
+      <button type="button" class="btn-close text-reset ms-auto" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+  </div>
+  <hr>
+  <div class="offcanvas-body">
+    <ul class="list-unstyled">
+      <li *ngFor="let module of modules; let index = index">
+        <div *ngIf="module.children && module.children.length > 0; else noChildren">
+          <a class="d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#collapse{{module.id}}" role="button" aria-expanded="false" attr.aria-controls="collapse{{module.id}}" (click)="toggleCollapse(index)">
+            <div class="d-flex">
+              <i class="{{module.icon}} btn-icon"></i>
+              <p class="mb-0 ms-2">{{module.name}}</p>
+            </div>
+            <!-- Agrega una flecha que cambia de dirección según si el menú desplegable está abierto o cerrado -->
+            <i class="fi" [ngClass]="{'fi-rr-angle-small-up': !module.isCollapsed, 'fi-rr-angle-small-down': module.isCollapsed}"></i>
+          </a>
+          <div class="collapse" id="collapse{{module.id}}">
+            <ul class="list-unstyled">
+              <li *ngFor="let child of module.children">
+                <!-- Agrega una clase CSS para los módulos hijos -->
+                <a class="d-flex align-items-center child-module ms-2" [routerLink]="['/home/' + child.route]" routerLinkActive="active-link" [ngStyle]="{'background-color': router.isActive('/home/' + child.route, true) ? '#' + color : ''}">
+                  <i class="{{child.icon}} btn-icon"></i>
+                  <p class="mb-0 ms-2">{{child.name}}</p>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+    
+        <ng-template #noChildren>
+          <a *ngIf="module.route" class="d-flex align-items-center" [routerLink]="['/home/' + module.route]" routerLinkActive="active-link" [ngStyle]="{'background-color': router.isActive('/home/' + module.route, true) ? '#' + color : ''}">
+            <i class="{{module.icon}} btn-icon"></i>
+            <p class="mb-0 ms-2">{{module.name}}</p>
+          </a>
+        </ng-template>
+      </li>
+    </ul>
+  </div>
+</div>

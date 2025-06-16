@@ -1,0 +1,36 @@
+
+
+.spinner-position {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2000;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+@media (max-width: 768px) {
+    .mw-buttons {
+        width: 80%;
+    }
+}
+
+@media (min-width: 769px) {
+    .mw-buttons {
+        width: 500px;
+    }
+}
+
+.vertical-center {
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+
+.mr-student-12 {
+    margin-right: 12px;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}

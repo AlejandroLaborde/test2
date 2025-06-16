@@ -1,0 +1,132 @@
+<div *ngIf="asyncProccess" class="d-flex justify-content-center align-items-center spinner-position">
+    <div class="spinner-border text-light" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+<div *ngIf="!subjectsList" class="d-flex flex-column justify-content-center align-items-center" style="height: 100%;">
+    <div class="card" style="width: 80%; height: 70%;">
+        <div class="d-flex flex-column align-items-center p-3" style="height: 100%;">
+            <img *ngIf="currentChildren" [src]="currentChildren.image" class="rounded-circle"
+                style="width: 100px; height: 100px;">
+            <h5 class="mt-3" *ngIf="currentChildren">{{currentChildren.name}} {{currentChildren.lastName}}</h5>
+            <div class="d-flex flex-column flex-md-row justify-content-around mw-buttons">
+                <select class="form-select" [disabled]="children.length == 0" (change)="setCurrentChildren($event)">
+                    <option *ngFor="let child of children" [selected]="currentChildren?.id == child.id" [value]="child.id">{{child.name}} {{child.lastName}}</option>
+                </select>
+                <button [style.backgroundColor]="'#' + color" [disabled]="children.length == 0"
+                  [style.borderColor]="'#' + color"
+                  class="btn btn-primary btn-block mt-2 mt-md-0 ms-md-2 w-100" (click)="setSubjects()">Ver sus materias</button>
+            </div>
+            <div *ngIf="children.length == 0" class="mt-auto mb-auto">
+                <h5>No tienes hijos.</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="subjectsList && subjectDetail == null" class="container mt-4 overflow-auto" style="height: 100%; width: 100%;">
+    <div class="row justify-content-center">
+        <div class="col-12 d-flex justify-content-between align-items-center text-center mb-1">
+            <button class="btn btn-primary" [style.backgroundColor]="'#' + color" [style.borderColor]="'#' + color" (click)="subjectsList = false"><i class="fi fi-rs-angle-left"></i> Volver</button>
+            <h4>Listado de materias:</h4>
+            <div style="height: 1px; width: 1px;"></div> <!-- Espacio vacío para alinear el título al centro -->
+        </div>
+
+        <div class="list-group">
+            <a (click)="getSubjectDetail(subject.schoolSubjectID)" *ngFor="let subject of subjects; let i = index" class="list-group-item list-group-item-action ps-1">
+                <div class="d-flex w-100 justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <div class="col-auto d-flex align-items-center" [ngClass]="{'mr-student-12': i < 9}">
+                            <h4 class="mb-1">{{i + 1}}.</h4>
+                        </div>
+                        <div class="ms-4">
+                            <h4 class="mb-1">{{subject.name}}</h4>
+                            <p class="mb-1"><span>Profesor: </span>{{subject.teacher}}</p>
+                            <p class="mb-1">
+                                <span *ngFor="let day of objectKeys(subject.days); let isLast=last">
+                                    {{day | titlecase}} {{subject.days[day]}}{{isLast ? '' : ','}}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    <i class="fi fi-rs-angle-right"></i>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="subjectsList && subjectDetail != null" class="container mt-4 overflow-auto" style="height: 100%; width: 100%;">
+    <div class="d-flex justify-content-between align-items-center">
+        <button class="btn btn-primary" [style.backgroundColor]="'#' + color" [style.borderColor]="'#' + color" (click)="goBack()"><i class="fi fi-rs-angle-left"></i> Volver</button>
+        <h2>{{subjectDetail.name}}</h2>
+        <div style="height: 1px; width: 1px;"></div> <!-- Espacio vacío para alinear el título al centro -->
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <p><strong>Profesor:</strong> {{subjectDetail.teacher}}</p>
+            <p><strong>Días y horarios de clases:</strong></p>
+            <p *ngFor="let day of objectKeys(subjectDetail.days)">
+                {{day | titlecase}} {{subjectDetail.days[day]}}
+            </p>
+            <p><strong>Trimestre:</strong> {{subjectDetail.quarter}}°</p>
+            <p><strong>Cantidad de clases dictadas:</strong> {{subjectDetail.classes}}</p>
+            <p><strong>Cantidad de ausencias:</strong> {{subjectDetail.absences}}</p>
+        </div>
+
+        <div class="col-md-6">
+            <p><strong>Porcentaje de asistencia:</strong> {{isNan((1 - subjectDetail.absences / subjectDetail.classes) * 100) ? '0' : ((1 - subjectDetail.absences / subjectDetail.classes) * 100).toFixed(0)}}%</p>
+            <div id="chartContainer" style="height: 300px; width: 100%;">
+                <canvas #chartCanvas></canvas>
+              </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <h4>Detalle de sus faltas</h4>
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">Día de la falta</th>
+                            <th scope="col">Tipo de falta</th>
+                            <th scope="col">Observación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let absence of subjectDetail.absencesDetails">
+                            <td>{{absence.date}}</td>
+                            <td>{{absence.reason}}</td>
+                            <td></td> <!-- Observación vacía por ahora -->
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="signatureURL" class="d-flex justify-content-center">
+        <img [src]="signatureURL" alt="Signature" style="height: 100px; width: 100px;">
+    </div>
+</div>
+
+<div class="modal" #modifAssistanceModal tabindex="-1" id="modifAssistanceModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">No tienes hijos asignados</h5>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p>No tiene hijos registrados. Favor de validar con la institución o enviar mail con Nombre del alumno y curso al mail de soporte: <a href="#">{{'soporte@athenasge.com.ar'}}</a></p>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" (click)="closeModal()">Volver al menú principal</button>
+            </div>
+        </div>
+    </div>
+</div>

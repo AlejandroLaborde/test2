@@ -1,0 +1,16 @@
+.btn-icon {
+    vertical-align: middle;
+  }
+
+.w-90 {
+    width: 90%;
+}
+
+.centered-button {
+  display: block;
+  margin: 0 auto; /* Centra el botón horizontalmente */
+}
+
+.fs-1-rem {
+  font-size: 1rem;
+}

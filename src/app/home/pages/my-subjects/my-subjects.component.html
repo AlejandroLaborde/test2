@@ -1,0 +1,506 @@
+<div *ngIf="asyncProccess" class="d-flex justify-content-center align-items-center spinner-position">
+    <div class="spinner-border text-light" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+
+<div *ngIf="subjectDetail == null && courseAssistance == null && courseAssistanceByDate == null && studentAssistanceDetail == null && subjectDetailTeacher == null"
+    class="container mt-4 overflow-auto" style="height: 100%; width: 100%;">
+    <div class="row justify-content-center">
+        <div class="col-12 text-center">
+            <h4>Mis materias:</h4>
+        </div>
+
+        <div class="list-group">
+            <a (click)="getSubjectDetail(subject.schoolSubjectID, true)" *ngFor="let subject of subjects; let i = index"
+                class="list-group-item list-group-item-action ps-1">
+                <div class="row align-items-center">
+                    <div [ngClass]="{
+                        'col-11': !isTeacher,
+                        'col-12': isTeacher,
+                        'col-lg-7': isTeacher,
+                    }">
+                        <div class="d-flex align-items-center">
+                            <div class="col-auto d-flex align-items-center">
+                                <h4 class="mb-1" [ngClass]="{'mr-course-lower-ten': i < 9}">{{i + 1}}.</h4>
+                            </div>
+                            <div>
+                                <h4 class="ms-4 mb-1">{{subject.name}}</h4>
+                                <p class="ms-4 mb-1"><span>Profesor: </span>{{subject.teacher}}<span *ngIf="isTeacher">
+                                        - Curso {{subject.course}}</span></p>
+                                <p class="ms-4 mb-1">
+                                    <span *ngFor="let day of objectKeys(subject.days); let isLast=last">
+                                        {{day | titlecase}} {{subject.days[day]}}{{isLast ? '' : ','}}
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="!isTeacher" class="col-1">
+                        <i class="fi fi-rs-angle-right"></i>
+                    </div>
+
+
+                    <div *ngIf="isTeacher" class="btn-group col-12 text-md-center text-lg-right offset-lg-0" [ngClass]="{
+                        'col-lg-5': isTeacher,
+                    }" role="group">
+                        <button (click)="takeCourseAssistance(subject.schoolSubjectID, subject.schoolSubjectName)"
+                            type="button" class="btn btn-danger btn-animations" style="font-size: 0.8rem;">TOMAR
+                            ASISTENCIA</button>
+                        <button (click)="modifAssistance(subject.schoolSubjectID)" type="button"
+                            class="btn btn-primary btn-animations" style="font-size: 0.8rem;">MODIFICAR
+                            ASISTENCIA</button>
+                        <button (click)="getSubjectDetail(subject.schoolSubjectID)" type="button"
+                            class="btn btn-success lighter-green-button btn-animations" style="font-size: 0.8rem;">VER
+                            MATERIA</button>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="courseAssistance != null && studentAssistanceDetail == null" class="container mt-4 overflow-auto"
+    style="height: 100%; width: 100%;">
+    <div class="row justify-content-center">
+
+        <div class="col-12 d-flex justify-content-between align-items-center text-center mb-1">
+            <button class="btn btn-primary" [style.backgroundColor]="'#' + color" [style.borderColor]="'#' + color"
+                (click)="courseAssistance = null; subjectDetailTeacher = null"><i class="fi fi-rs-angle-left"></i>
+                Volver</button>
+
+            <div class="d-flex align-items-center">
+                <h4>ASISTENCIA {{currentCourseName + ' ' + currentSchoolSubjectName}}</h4>
+                <i *ngIf="cantTakeAssistance" class="fi fi-rr-info ms-2" appBootstrapTooltip
+                    tooltipTitle="Día feriado o sin clases. No se puede tomar asistencia.">
+                </i>
+            </div>
+
+            <div style="height: 1px; width: 1px;"></div>
+        </div>
+
+        <div class="list-group">
+            <a (click)="onStudentAssistanceClick(student.id)"
+                *ngFor="let student of courseAssistance.students; let i = index;"
+                class="list-group-item list-group-item-action ps-1">
+                <div class="d-flex w-100 justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <h4 class="mb-1" [ngClass]="{'mr-course-lower-ten': i < 9}">{{i + 1}}.</h4>
+                    </div>
+                    <div class="d-flex w-100 justify-content-between  flex-grow-1" [ngClass]="{
+                        'flex-column': student.assistance == 0,
+                        'flex-sm-row': student.assistance == 0,
+                        'align-items-center': student.assistance != 0,
+                    }">
+                        <div class="text-container text-left">
+                            <h4 class="mb-1 ms-3">{{student.name}}</h4>
+                        </div>
+                        <div class="btn-group ms-3 fixed-width-buttons" role="group">
+                            <button *ngIf="student.assistance == 0 || student.assistance == 1"
+                                (click)="setAssistance(student.id, 1, $event)"
+                                [disabled]="asyncProccess || student.assistance == 1 || cantTakeAssistance"
+                                type="button"
+                                class="btn btn-animations btn-success lighter-green-button fixed-width-button "
+                                [ngClass]="{
+                                    'me-2': student.assistance == 0
+                                }" style="font-size: 0.8rem;"><i class="fi fi-br-check"></i></button>
+                            <button *ngIf="student.assistance == 0 || student.assistance == 2"
+                                (click)="setAssistance(student.id, 2, $event)"
+                                [disabled]="asyncProccess || student.assistance == 2 || cantTakeAssistance"
+                                type="button" class="btn btn-animations btn-danger fixed-width-button " [ngClass]="{
+                                    'me-2': student.assistance == 0
+                                }" style="font-size: 0.8rem;"><i class="fi fi-br-cross"></i></button>
+                            <button *ngIf="student.assistance == 0 || student.assistance == 3"
+                                (click)="setAssistance(student.id, 3, $event)"
+                                [disabled]="asyncProccess || student.assistance == 3 || cantTakeAssistance"
+                                type="button" class="btn btn-animations beautiful-yellow-button fixed-width-button "
+                                [ngClass]="{
+                                    'me-2': student.assistance == 0
+                                }" style="font-size: 0.8rem;">T</button>
+                            <button *ngIf="student.assistance == 0 || student.assistance == 4"
+                                (click)="setAssistance(student.id, 4, $event)"
+                                [disabled]="asyncProccess || student.assistance == 4 || cantTakeAssistance"
+                                type="button" class="btn btn-animations btn-primary fixed-width-button"
+                                style="font-size: 0.8rem;">AP</button>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+
+
+<div *ngIf="courseAssistanceByDate != null && studentAssistanceDetail == null" class="container mt-4 overflow-auto"
+    style="height: 100%; width: 100%;">
+    <div class="row justify-content-center">
+
+
+        <div class="col-12 d-flex justify-content-between align-items-center text-center mb-1">
+            <button class="btn btn-primary" [style.backgroundColor]="'#' + color" [style.borderColor]="'#' + color"
+                (click)="courseAssistanceByDate = null; selectedDate = ''"><i class="fi fi-rs-angle-left"></i>
+                Volver</button>
+            <h4>{{currentCourseName}} {{currentSchoolSubjectName
+                ? ' - ' + currentSchoolSubjectName + ' - ' +
+                (courseAssistanceByDate.groupID == 1 ? 'TEORÍA' : courseAssistanceByDate.groupID == 2 ? 'PRÁCTICA' :
+                'TODOS LOS ALUMNOS')
+                : ''}}</h4>
+            <div style="height: 1px; width: 1px;"></div>
+        </div>
+
+        <div class="row mb-2">
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <input type="date" class="form-control" [(ngModel)]="selectedDate"
+                    (ngModelChange)="onDateChange($event)">
+            </div>
+        </div>
+
+
+        <div>
+            <div class="list-group">
+                <a *ngFor="let student of courseAssistanceByDate.students; let i = index;"
+                    class="list-group-item list-group-item-action ps-1">
+                    <div class="d-flex w-100 justify-content-between align-items-center">
+                        <div class="ms-2 d-flex align-items-center">
+                            <div class="col-auto d-flex align-items-center" [ngClass]="{'mr-course-lower-ten': i < 9}">
+                                <h4 class="mb-1">{{i + 1}}.</h4>
+                            </div>
+                            <div class="ms-2">
+                                <h4 class="mb-1">{{student.name}}</h4>
+                                <span class="me-2 d-block d-sm-none">
+                                    <ng-container *ngIf="student.assistance == 1">PRESENTE</ng-container>
+                                    <ng-container *ngIf="student.assistance == 2">AUSENTE</ng-container>
+                                    <ng-container *ngIf="student.assistance == 3">TARDE</ng-container>
+                                    <ng-container *ngIf="student.assistance == 4">AUSENTE CON PRESENCIA</ng-container>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="me-2 d-none d-sm-block">
+                                <ng-container *ngIf="student.assistance == 1">PRESENTE</ng-container>
+                                <ng-container *ngIf="student.assistance == 2">AUSENTE</ng-container>
+                                <ng-container *ngIf="student.assistance == 3">TARDE</ng-container>
+                                <ng-container *ngIf="student.assistance == 4">AUSENTE CON PRESENCIA</ng-container>
+                            </span>
+                            <div class="btn-group" role="group">
+                                <button (click)="modifStudentAssistance(student.id)" type="button" class="btn btn-info"
+                                    style="font-size: 0.8rem;">MODIFICAR</button>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div *ngIf="subjectDetail != null && studentAssistanceDetail == null && subjectDetailTeacher == null"
+    class="container mt-4 overflow-auto" style="height: 100%; width: 100%;">
+    <div class="d-flex justify-content-between align-items-center">
+        <button class="btn btn-primary" [style.backgroundColor]="'#' + color" [style.borderColor]="'#' + color"
+            (click)="goBack()"><i class="fi fi-rs-angle-left"></i> Volver</button>
+        <h2>{{subjectDetail.name}}</h2>
+        <div style="height: 1px; width: 1px;"></div> <!-- Espacio vacío para alinear el título al centro -->
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <p><strong>Profesor:</strong> {{subjectDetail.teacher}}</p>
+            <p><strong>Días y horarios de clases:</strong></p>
+            <p *ngFor="let day of objectKeys(subjectDetail.days)">
+                {{day | titlecase}} {{subjectDetail.days[day]}}
+            </p>
+            <p><strong>Trimestre:</strong> {{subjectDetail.quarter}}°</p>
+            <p><strong>Cantidad de clases dictadas:</strong> {{subjectDetail.classes}}</p>
+            <p><strong>Cantidad de ausencias:</strong> {{subjectDetail.absences}}</p>
+        </div>
+
+        <div class="col-md-6">
+            <p><strong>Porcentaje de asistencia:</strong> {{isNan((1 - subjectDetail.absences / subjectDetail.classes) *
+                100) ? '0' : ((1 - subjectDetail.absences / subjectDetail.classes) * 100).toFixed(0)}}%</p>
+            <div id="chartContainer" style="height: 300px; width: 100%;">
+                <canvas #chartCanvas></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <h4>Detalle de mis faltas</h4>
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">Día de la falta</th>
+                            <th scope="col">Tipo de falta</th>
+                            <th scope="col">Observación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let absence of subjectDetail.absencesDetails">
+                            <td>{{absence.date}}</td>
+                            <td>{{absence.reason}}</td>
+                            <td>{{absence.obs}}</td> <!-- Observación vacía por ahora -->
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="signatureURL" class="d-flex justify-content-center">
+        <img [src]="signatureURL" alt="Signature" style="height: 100px; width: 100px;">
+    </div>
+</div>
+
+<div *ngIf="subjectDetailTeacher != null && courseAssistance == null" class="container mt-4 overflow-auto"
+    style="height: 100%; width: 100%;">
+
+    <div class="d-flex justify-content-between align-items-center">
+        <button class="btn btn-primary" [style.backgroundColor]="'#' + color" [style.borderColor]="'#' + color"
+            (click)="subjectDetailTeacher = null"><i class="fi fi-rs-angle-left"></i> Volver</button>
+        <h2>{{subjectDetailTeacher.name}}</h2>
+        <div style="height: 1px; width: 1px;"></div> <!-- Espacio vacío para alinear el título al centro -->
+    </div>
+
+    <div class="row">
+        <!-- Sección izquierda: información del profesor y detalles de la clase -->
+        <div class="col-md-6">
+            <p><strong>Profesor:</strong> {{subjectDetailTeacher.teacher}}</p>
+            <p><strong>Días y horarios de clases:</strong></p>
+            <p *ngFor="let day of objectKeys(subjectDetailTeacher.days)">
+                {{day | titlecase}} {{subjectDetailTeacher.days[day]}}
+            </p>
+            <p><strong>Trimestre:</strong> {{subjectDetailTeacher.quarter == 0 ? 'TODO EL AÑO' :
+                subjectDetailTeacher.quarter + '°'}}</p>
+            <p><strong>Cantidad de clases dictadas:</strong> {{subjectDetailTeacher.classes}}</p>
+        </div>
+
+        <!-- Sección derecha: desplegable para seleccionar el trimestre -->
+        <div class="col-12 col-md-5 col-lg-3">
+            <select (change)="getSubjectDetail(currentCourseID)" [(ngModel)]="selectedQuarter"
+                class="form-control mb-2">
+                <option [selected]="selectedQuarter == 0" [value]="0">TODO EL AÑO</option>
+                <option [selected]="selectedQuarter == 1" [value]="1">1er Trimestre</option>
+                <option [selected]="selectedQuarter == 2" [value]="2">2do Trimestre</option>
+                <option [selected]="selectedQuarter == 3" [value]="3">3er Trimestre</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Tabla con los datos de StudentAbsenceDetail -->
+    <div class="row">
+        <div class="col-12 table-responsive">
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Ausencias</th>
+                        <th>Tarde</th>
+                        <th>Ausente CON PRESENCIA</th>
+                        <th>Ausencias Restantes</th>
+                        <th>Justificadas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let detail of subjectDetailTeacher.absencesDetails">
+                        <td>{{detail.name}}</td>
+                        <td>{{detail.lastName}}</td>
+                        <td>{{detail.a}}</td>
+                        <td>{{detail.t}}</td>
+                        <td>{{detail.ap}}</td>
+                        <td>{{detail.numberOfRemainingAbsences}}</td>
+                        <td>{{0}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="studentAssistanceDetail != null" class="container mt-4 overflow-auto" style="height: 100%; width: 100%;">
+    <div class="row justify-content-center justify-content-md-start">
+
+        <div class="col-12 d-flex justify-content-between align-items-center text-center mb-1">
+            <button class="btn btn-primary" [style.backgroundColor]="'#' + color" [style.borderColor]="'#' + color"
+                (click)="studentAssistanceDetail = null"><i class="fi fi-rs-angle-left"></i> Volver</button>
+            <h4>Tomar asistencia del alumno</h4>
+            <div style="height: 1px; width: 1px;"></div>
+        </div>
+
+        <div class="col-12 col-sm-4 text-left">
+            <p><strong>Nombre completo:</strong> {{studentAssistanceDetail.name}}</p>
+            <p><strong>Curso:</strong> {{currentCourseName}} {{currentSchoolSubjectName}}</p>
+            <p><strong>Mail:</strong> {{studentAssistanceDetail.mail || 'No disponible'}}</p>
+            <p><strong>Fecha de hoy:</strong> {{today | date:'dd/MM/yyyy'}}</p>
+        </div>
+
+        <div class="col-12 col-sm-4 text-center text-sm-right ms-4">
+            <img src="{{studentAssistanceDetail.profilePic || '/assets/img/blank-profile.webp'}}" alt="Perfil"
+                style="width: 100px; height: 100px;">
+                
+                <a class="list-group-item list-group-item-action ps-1 mt-4">
+                    <div class="d-flex w-100 justify-content-between align-items-center flex-column flex-lg-row">
+                        <div class="mb-2 mb-lg-0 d-flex align-items-center">
+                            <h4 class="mb-1">{{studentAssistanceDetail.name}}</h4>
+                            <i *ngIf="cantTakeAssistance" class="fi fi-rr-info ms-2" appBootstrapTooltip
+                                tooltipTitle="Día feriado o sin clases. No se puede tomar asistencia.">
+                            </i>
+                        </div>
+                        <div class="btn-group" *ngIf="studentAssistanceDetail.assistance == 0" role="group">
+                            <button
+                                
+                                (click)="setAssistance(studentAssistanceDetail.id, 1, $event)" type="button"
+                                [disabled]="cantTakeAssistance"
+                                class="btn btn-success fixed-width-button" style="font-size: 0.8rem;"><i
+                                    class="fi fi-br-check"></i></button>
+                            <button
+                                
+                                (click)="setAssistance(studentAssistanceDetail.id, 2, $event)" type="button"
+                                [disabled]="cantTakeAssistance"
+                                class="btn btn-danger fixed-width-button" style="font-size: 0.8rem;"><i
+                                    class="fi fi-br-cross"></i></button>
+                            <button
+                                
+                                (click)="setAssistance(studentAssistanceDetail.id, 3, $event)" type="button"
+                                [disabled]="cantTakeAssistance"
+                                class="btn fixed-width-button"
+                                style="background-color: orange; font-size: 0.8rem;">T</button>
+                            <button
+                                
+                                (click)="setAssistance(studentAssistanceDetail.id, 4, $event)" type="button"
+                                [disabled]="cantTakeAssistance"
+                                class="btn btn-info fixed-width-button" style="font-size: 0.8rem;">AP</button>
+                        </div>
+
+                        <div class="status-legend" *ngIf="studentAssistanceDetail.assistance != 0" [ngStyle]="{'color': getStatusColor(studentAssistanceDetail.assistance)}">
+                            <h4 class="mb-0"><span *ngIf="studentAssistanceDetail?.assistance == 1">Presente</span>
+                                <span *ngIf="studentAssistanceDetail?.assistance == 2">Ausente</span>
+                                <span *ngIf="studentAssistanceDetail?.assistance == 3">Tarde</span>
+                                <span *ngIf="studentAssistanceDetail?.assistance == 4">Ausente CON PRESENCIA</span></h4>
+                        </div>
+                    </div>
+            </a>
+        </div>
+
+
+
+
+        <div class="col-12 d-flex justify-content-center pt-2 mt-5">
+            <button class="btn me-2" style="background-color: orange; font-size: 0.8rem;"
+                (click)="navigateToPreviousStudent()">← ANTERIOR ALUMNO</button>
+            <button class="btn ms-2" style="background-color: violet; font-size: 0.8rem;"
+                (click)="navigateToNextStudent()">SIGUIENTE ALUMNO →</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal" #modifAssistanceModal tabindex="-1" id="modifAssistanceModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{currStudentAssistance?.name}} - {{currentCourseName}}
+                    ({{assistanceDescription[currStudentAssistance?.originalAssistance || 0]}})</h5>
+                <button type="button" class="btn-close text-reset" aria-label="Close"
+                    (click)="closeModifAssistanceModal()"></button>
+            </div>
+            <div class="modal-body pt-1">
+
+                <div class="status-legend" [ngStyle]="{'color': getStatusColor(currStudentAssistance?.assistance)}">
+                    <span *ngIf="currStudentAssistance?.assistance == 1">Presente</span>
+                    <span *ngIf="currStudentAssistance?.assistance == 2">Ausente</span>
+                    <span *ngIf="currStudentAssistance?.assistance == 3">Tarde</span>
+                    <span *ngIf="currStudentAssistance?.assistance == 4">Ausente CON PRESENCIA</span>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span>Estado actual: </span>
+                        <span *ngIf="currStudentAssistance?.originalAssistance == 1">PRESENTE</span>
+                        <span *ngIf="currStudentAssistance?.originalAssistance == 2">AUSENTE</span>
+                        <span *ngIf="currStudentAssistance?.originalAssistance == 3">TARDE</span>
+                        <span *ngIf="currStudentAssistance?.originalAssistance == 4">AUSENTE CON PRESENCIA</span>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button (click)="setCurrStudentAssistanceAssistance(1)" type="button"
+                            class="btn btn-animations fixed-width-button" [ngClass]="{
+        'btn-success': currStudentAssistance?.originalAssistance != 1,
+        'disabled-modif-button': currStudentAssistance?.originalAssistance == 1,
+        'btn-success-dark': currStudentAssistance?.assistance == 1
+    }" style="font-size: 0.8rem;" [ngStyle]="{
+        'color': currStudentAssistance?.originalAssistance == 1 ? '#198754' : 'rgb(255, 255, 255)'
+    }" [disabled]="currStudentAssistance?.originalAssistance == 1">
+                            <i class="fi fi-br-check"></i>
+                        </button>
+
+                        <button (click)="setCurrStudentAssistanceAssistance(2)" type="button"
+                            class="btn btn-animations fixed-width-button" style="font-size: 0.8rem;" [ngClass]="{
+        'btn-danger': currStudentAssistance?.originalAssistance != 2,
+        'disabled-modif-button': currStudentAssistance?.originalAssistance == 2,
+        'btn-danger-dark': currStudentAssistance?.assistance == 2
+    }" [ngStyle]="{
+        'color': currStudentAssistance?.originalAssistance == 2 ? '#dc3545' : 'rgb(255, 255, 255)'
+    }" [disabled]="currStudentAssistance?.originalAssistance == 2">
+                            <i class="fi fi-br-cross"></i>
+                        </button>
+
+                        <button (click)="setCurrStudentAssistanceAssistance(3)" type="button"
+                            class="btn btn-animations fixed-width-button" [ngClass]="{
+        'orange-color': currStudentAssistance?.originalAssistance != 3,
+        'disabled-modif-button': currStudentAssistance?.originalAssistance == 3,
+        'orange-color-dark': currStudentAssistance?.assistance == 3
+    }" [ngStyle]="{
+        'color': currStudentAssistance?.originalAssistance == 3 ? 'orange' : 'rgb(255, 255, 255)'
+    }" style="font-size: 0.8rem;" [disabled]="currStudentAssistance?.originalAssistance == 3">
+                            T
+                        </button>
+
+                        <button (click)="setCurrStudentAssistanceAssistance(4)" type="button"
+                            class="btn btn-animations fixed-width-button" style="font-size: 0.8rem;" [ngClass]="{
+        'btn-primary': currStudentAssistance?.originalAssistance != 4,
+        'disabled-modif-button': currStudentAssistance?.originalAssistance == 4,
+        'btn-primary-dark': currStudentAssistance?.assistance == 4
+    }" [ngStyle]="{
+        'color': currStudentAssistance?.originalAssistance == 4 ? '#0d6efd' : 'rgb(255, 255, 255)'
+    }" [disabled]="currStudentAssistance?.originalAssistance == 4">
+                            AP
+                        </button>
+                    </div>
+                </div>
+                <textarea class="form-control mt-3" placeholder="Descripción" [(ngModel)]="descriptionText"></textarea>
+
+                <div class="mt-2" *ngIf="currStudentAssistance?.assistance === 2">
+                    <div class="d-flex justify-content-start align-items-center mb-3">
+                        <span>¿Está justificado?</span>
+                        <div class="form-check form-check-inline ms-2">
+                            <input class="form-check-input" type="radio" name="justified" id="justifiedYes"
+                                [(ngModel)]="justified" value="yes">
+                            <label class="form-check-label" for="justifiedYes">Sí</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="justified" id="justifiedNo"
+                                [(ngModel)]="justified" value="no">
+                            <label class="form-check-label" for="justifiedNo">No</label>
+                        </div>
+                    </div>
+
+                    <!-- Área de texto para la descripción de la justificación, visible solo si se selecciona "Sí" -->
+                    <div *ngIf="justified === 'yes'">
+                        <textarea [(ngModel)]="justDescriptionText" class="form-control"
+                            placeholder="Descripción de la justificación"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn  btn-animations btn-success" (click)="confirmModifStudentAssistance()"
+                    [disabled]="shouldDisableConfirmButton()">Confirmar</button>
+                <button type="button" class="btn  btn-animations btn-danger"
+                    (click)="closeModifStudentAssistance()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>

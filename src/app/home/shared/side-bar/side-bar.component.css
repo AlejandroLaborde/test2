@@ -1,0 +1,61 @@
+/* Ajusta el padding y el margen de los elementos de la lista */
+.list-unstyled li a {
+    display: block;
+    padding: 10px 15px;
+    margin: 0 -15px;
+  }
+  
+  /* Cambia el color del texto del enlace a negro */
+  .list-unstyled a {
+    color: black;
+  }
+  
+  /* Cambia el color del texto del enlace a blanco cuando la ruta actual coincide con la ruta especificada en el enlace */
+  .list-unstyled a.active-link {
+    color: white;
+  }
+  
+  /* Añade un borde redondeado a los enlaces */
+  .list-unstyled a {
+    border-radius: 5px;
+  }
+  
+  /* Elimina el subrayado de los enlaces */
+  .list-unstyled a {
+    text-decoration: none;
+  }
+
+  /* Ajusta el ancho de la barra lateral colapsada */
+.sidebar-collapsed {
+  width: 50px;
+}
+
+/* Ajusta el padding y el margen de los enlaces de la barra lateral colapsada */
+.sidebar-collapsed a {
+  display: block;
+  padding: 10px;
+  margin: 0;
+}
+
+/* Añade un borde redondeado a los enlaces de la barra lateral colapsada */
+.sidebar-collapsed a {
+  border-radius: 5px;
+}
+
+/* Elimina el subrayado de los enlaces de la barra lateral colapsada */
+.sidebar-collapsed a {
+  text-decoration: none;
+}
+
+/* Cambia el color del texto del enlace a blanco cuando la ruta actual coincide con la ruta especificada en el enlace */
+.sidebar-collapsed a.active-link {
+  color: white;
+}
+
+.child-module {
+  margin-left: 20px;
+}
+
+.btn-icon {
+  vertical-align: middle;
+}

@@ -1,0 +1,22 @@
+<div class="d-flex flex-column justify-content-between vh-100">
+  <div class="d-flex justify-content-between">
+    <div class="d-flex align-items-center ms-1 mt-1">
+      <app-side-bar></app-side-bar>
+      <div class="ms-1">
+        <h5 class="mb-0">Sistema de gestión escolar</h5>
+      </div>
+    </div>
+
+    <div class="d-flex align-items-center mt-1">
+      <div class="d-flex align-items-center small-text me-2">
+        <p class="mb-0 ms-1 me-2">V {{version}}</p>
+        <p class="mb-0">{{ currentDate | date:'dd/MM/YYYY hh:mm a' }}</p>
+      </div>
+      <app-session></app-session>
+    </div>
+  </div>
+  <div style="height: 80%; width: 100%;">
+    <router-outlet></router-outlet>
+  </div>
+  <div style="height: 10%;"><app-footer></app-footer></div>
+</div>

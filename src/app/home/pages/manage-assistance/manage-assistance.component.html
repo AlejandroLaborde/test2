@@ -1,0 +1,414 @@
+<div *ngIf="asyncProccess" class="d-flex justify-content-center align-items-center spinner-position">
+    <div class="spinner-border text-light" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+
+<div class="container mt-4 overflow-auto" style="height: 100%; width: 100%;">
+    <div class="row justify-content-center">
+
+        <div *ngIf="!assistance && !modification && !lastModificationsLabel"
+            class="col-12 d-flex justify-content-between align-items-center text-center mb-1">
+            <h4>Cursos:</h4>
+            <button class="btn  btn-animations btn-secondary" (click)="openHolidaysModal()"><i
+                    class="fi fi-rs-calendar"></i> Feriados o
+                días sin clases</button>
+        </div>
+        <div *ngIf="assistance" class="col-12 d-flex justify-content-between align-items-center text-center mb-1">
+            <button class="btn  btn-animations btn-primary" [style.backgroundColor]="'#' + color"
+                [style.borderColor]="'#' + color" (click)="courseAssistance = null; assistance = false"><i
+                    class="fi fi-rs-angle-left"></i>
+                Volver</button>
+            <div class="d-flex align-items-center">
+                <h4>ASISTENCIA {{currentCourseName}} </h4>
+                <i *ngIf="cantTakeAssistance" class="fi fi-rr-info ms-2" appBootstrapTooltip
+                    tooltipTitle="Día feriado o sin clases. No se puede tomar asistencia.">
+                </i>
+            </div>
+            <div style="height: 1px; width: 1px;"></div>
+        </div>
+        <div *ngIf="modification" class="col-12 d-flex justify-content-between align-items-center text-center mb-1">
+            <button class="btn  btn-animations btn-primary" [style.backgroundColor]="'#' + color"
+                [style.borderColor]="'#' + color" (click)="courseAssistanceByDate = null; modification = false;"><i
+                    class="fi fi-rs-angle-left"></i>
+                Volver</button>
+            <h4>MODIFICAR ASISTENCIA {{currentCourseName}}</h4>
+            <div style="height: 1px; width: 1px;"></div>
+        </div>
+        <div *ngIf="lastModificationsLabel"
+            class="col-12 d-flex justify-content-between align-items-center text-center mb-1">
+            <button class="btn  btn-animations btn-primary" [style.backgroundColor]="'#' + color"
+                [style.borderColor]="'#' + color"
+                (click)="lastModificationsLabel = false; courseAssistanceByQuarter = null"><i
+                    class="fi fi-rs-angle-left"></i> Volver</button>
+            <h4>Últimas modificaciones del curso: {{currentCourseName}}</h4>
+            <div style="height: 1px; width: 1px;"></div>
+        </div>
+
+        <div *ngIf="courseAssistanceByDate && modification" class="row mb-2">
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <input type="date" class="form-control" [(ngModel)]="selectedDate"
+                    (ngModelChange)="onDateChange($event)">
+            </div>
+        </div>
+
+        <div *ngIf="!assistance && !modification && !lastModificationsLabel" class="list-group">
+            <a *ngFor="let course of courses; let i = index" class="list-group-item list-group-item-action ps-1">
+                <div class="row align-items-center">
+                    <div class="col-12 ms-sm-0 text-center col-lg-7" [ngClass]="{
+                        'col-sm-12': !allCourses,
+                        'col-md-6': !allCourses,
+                        'col-sm-6': isDirective,
+                        'col-xl-8': allCourses
+                    }">
+                        <div class="d-flex align-items-center">
+                            <div class="col-auto d-flex align-items-center" [ngClass]="{'mr-course-lower-ten': i < 9}">
+                                <h4 class="mb-1">{{i + 1}}.</h4>
+                            </div>
+
+                            <div class="row align-items-center flex-grow-1">
+
+                                <div class="col-12 text-center text-md-start" [ngClass]="{
+                                    'col-sm-6': allCourses
+                                }">
+                                    <h4 class="ms-3 mb-1">{{course.name}}</h4>
+                                </div>
+                                <div *ngIf="allCourses && !isDirective" class="col-12 ms-sm-0 col-sm-6">
+                                    <div class="d-flex align-items-center justify-content-center justify-content-md-start"
+                                        *ngIf="course.isMine; else notMine">
+                                        <span class="text-md-start">Este curso te pertenece</span>
+                                        <i class="fi fi-sr-info mt-1 ms-1 btn-icon" style="color: green;"></i>
+                                    </div>
+                                    <ng-template #notMine>
+                                        <div
+                                            class="d-flex align-items-center justify-content-center justify-content-md-start">
+                                            <span class="text-md-start">Este curso no te pertenece</span>
+                                            <i class="fi fi-sr-info mt-1 ms-1 btn-icon" style="color: red;"></i>
+                                        </div>
+                                    </ng-template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="btn-group col-12 text-md-center text-lg-right offset-lg-0" [ngClass]="{
+                        'col-lg-5': !allCourses,
+                        'col-lg-4': allCourses,
+                        'col-md-6': !allCourses || isDirective,
+                        'col-sm-6': isDirective
+                    }" role="group">
+                        <button *ngIf="!isDirective" (click)="getAssistance(course.id)" type="button"
+                            class="btn btn-danger btn-animations" style="font-size: 0.8rem;">TOMAR ASISTENCIA</button>
+                        <button *ngIf="!isDirective" (click)="modifAssistance(course.id)" type="button"
+                            class="btn btn-primary btn-animations" style="font-size: 0.8rem;">MODIFICAR
+                            ASISTENCIA</button>
+                        <button (click)="lastModifications(course.id)" type="button"
+                            class="btn btn-success lighter-green-button btn-animations d-flex align-items-center justify-content-center"
+                            style="font-size: 0.8rem;">
+                            <i class="fi fi-tr-overview me-2"></i>
+                            <span>ÚLTIMAS MODIFICACIONES</span>
+                        </button>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div *ngIf="assistance && courseAssistance">
+            <div class="list-group">
+                <a *ngFor="let student of courseAssistance.students; let i = index"
+                    class="list-group-item list-group-item-action ps-1">
+                    <div class="d-flex w-100 justify-content-between align-items-center">
+                        <div class="d-flex align-items-center" [ngClass]="{
+                            'mr-student-lower-ten': i < 9,
+                        }">
+                            <h4 class="mb-1">{{i + 1}}.</h4>
+                        </div>
+                        <div class="d-flex w-100 justify-content-between ms-3 flex-grow-1" [ngClass]="{
+                            'flex-column': student.assistance == 0,
+                            'flex-sm-row': student.assistance == 0,
+                            'align-items-center': student.assistance != 0,
+                        }">
+                            <div class="text-container text-left">
+                                <h4 class="mb-1">{{student.name}}</h4>
+                            </div>
+                            <div class="btn-group fixed-width-buttons align-items-center" role="group">
+                                <button *ngIf="student.assistance == 0 || student.assistance == 1"
+                                    (click)="setAssistance(student.id, 1)"
+                                    [disabled]="asyncProccess || student.assistance == 1 || cantTakeAssistance"
+                                    type="button"
+                                    class="btn btn-animations btn-success lighter-green-button fixed-width-button "
+                                    [ngClass]="{
+                                        'me-2': student.assistance == 0
+                                    }" style="font-size: 0.8rem;"><i class="fi fi-br-check"></i></button>
+                                <button *ngIf="student.assistance == 0 || student.assistance == 2"
+                                    (click)="setAssistance(student.id, 2)"
+                                    [disabled]="asyncProccess || student.assistance == 2 || cantTakeAssistance"
+                                    type="button" class="btn btn-animations btn-danger fixed-width-button " [ngClass]="{
+                                        'me-2': student.assistance == 0
+                                    }" style="font-size: 0.8rem;"><i class="fi fi-br-cross"></i></button>
+                                <button *ngIf="student.assistance == 0 || student.assistance == 3"
+                                    (click)="setAssistance(student.id, 3)"
+                                    [disabled]="asyncProccess || student.assistance == 3 || cantTakeAssistance"
+                                    type="button" class="btn btn-animations beautiful-yellow-button fixed-width-button "
+                                    [ngClass]="{
+                                        'me-2': student.assistance == 0
+                                    }" style="font-size: 0.8rem;">T</button>
+                                <button *ngIf="student.assistance == 0 || student.assistance == 4"
+                                    (click)="setAssistance(student.id, 4)"
+                                    [disabled]="asyncProccess || student.assistance == 4 || cantTakeAssistance"
+                                    type="button" class="btn btn-animations btn-primary fixed-width-button"
+                                    style="font-size: 0.8rem;">AP</button>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div *ngIf="courseAssistanceByDate && modification">
+            <div class="list-group">
+                <a *ngFor="let student of courseAssistanceByDate.students; let i = index"
+                    class="list-group-item list-group-item-action ps-1">
+                    <div class="d-flex w-100 justify-content-between align-items-center">
+                        <div class="ms-2 d-flex align-items-center">
+                            <div class="col-auto d-flex align-items-center" [ngClass]="{'mr-course-lower-ten': i < 9}">
+                                <h4 class="mb-1">{{i + 1}}.</h4>
+                            </div>
+                            <div class="ms-2">
+                                <h4 class="mb-1">{{student.name}}</h4>
+                                <span class="me-2 d-block d-sm-none">
+                                    <ng-container *ngIf="student.assistance == 1">PRESENTE</ng-container>
+                                    <ng-container *ngIf="student.assistance == 2">AUSENTE</ng-container>
+                                    <ng-container *ngIf="student.assistance == 3">TARDE</ng-container>
+                                    <ng-container *ngIf="student.assistance == 4">AUSENTE CON PRESENCIA</ng-container>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="me-2 d-none d-sm-block">
+                                <ng-container *ngIf="student.assistance == 1">PRESENTE</ng-container>
+                                <ng-container *ngIf="student.assistance == 2">AUSENTE</ng-container>
+                                <ng-container *ngIf="student.assistance == 3">TARDE</ng-container>
+                                <ng-container *ngIf="student.assistance == 4">AUSENTE CON PRESENCIA</ng-container>
+                            </span>
+                            <div class="btn-group" role="group">
+                                <button (click)="modifStudentAssistance(student.id)" type="button"
+                                    class="btn  btn-animations btn-info" style="font-size: 0.8rem;">MODIFICAR</button>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div *ngIf="lastModificationsLabel && courseAssistanceByQuarter">
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="col-12 col-md-5 col-lg-3">
+                        <select (change)="lastModifications(currentCourseID)" [(ngModel)]="selectedQuarter"
+                            class="form-control mb-2">
+                            <option [selected]="selectedQuarter == 0" [value]="0">TODO EL AÑO</option>
+                            <option [selected]="selectedQuarter == 1" [value]="1">1er Trimestre</option>
+                            <option [selected]="selectedQuarter == 2" [value]="2">2do Trimestre</option>
+                            <option [selected]="selectedQuarter == 3" [value]="3">3er Trimestre</option>
+                        </select>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Curso</th>
+                                    <th scope="col">Fecha presentismo</th>
+                                    <th scope="col">Tipo presentismo</th>
+                                    <th scope="col">Observación</th>
+                                    <th scope="col">Fecha de modificación</th>
+                                    <th scope="col">Nombre preceptor</th>
+                                    <th scope="col">Nombre alumno</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let assistance of courseAssistanceByQuarter">
+                                    <td>{{assistance.course}}</td>
+                                    <td>{{assistance.date}}</td>
+                                    <td>{{assistance.assistance}}</td>
+                                    <td>{{assistance.observation}}</td>
+                                    <td>{{assistance.dateModification}}</td>
+                                    <td>{{assistance.preceptor}}</td>
+                                    <td>{{assistance.student}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="feriadosModal" #feriadosModal tabindex="-1" aria-labelledby="holidaysModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="holidaysModalLabel">Feriados o días sin clases</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body container-fluid">
+                <!-- Calendario a la izquierda -->
+                <div class="row">
+                    <div class="col-12 mb-2 mb-lg-0 col-lg-7 text-center">
+                        <!-- Aquí inserta tu componente de calendario -->
+                        <p-calendar [(ngModel)]="date" [inline]="true" [disabledDates]="disabledDates" />
+
+                    </div>
+                    <!-- Text area a la derecha -->
+                    <div class="col-12 col-lg-5">
+                        <textarea [(ngModel)]="holidaysDescription" class="form-control" rows="5"
+                            placeholder="Descripción..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button (click)="closeHolidaysModal()" type="button" class="btn  btn-animations btn-secondary"
+                    data-bs-dismiss="modal">Cancelar</button>
+                <button (click)="getConfirmHolidayModal()"
+                    [disabled]="holidaysDescription.length < 5 || isDateOnDisabledDates()" type="button"
+                    class="btn  btn-animations btn-success">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Modal para confirmar el clic de confirmar holidays-->
+<div class="modal fade" id="confirmFeriadosModal" #confirmFeriadosModal tabindex="-1"
+    aria-labelledby="confirmHolidaysModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmHolidaysModalLabel">Confirmar feriado o día sin clases</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <p>ATENCIÓN. ESTA ACCIÓN HARÁ QUE NO SE PUEDA TOMAR ASISTENCIA.</p>
+                        <hr>
+                        <p>¿Estás seguro de que deseas confirmar el día <strong>{{date | date:'d/MM/yyyy'}}</strong>
+                            como feriado o día sin clases?</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button (click)="closeConfirmHolidayModal()" type="button" class="btn  btn-animations btn-secondary"
+                    data-bs-dismiss="modal">Cancelar</button>
+                <button (click)="confirmHolidayModal()" type="button"
+                    class="btn  btn-animations btn-success">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" #modifAssistanceModal tabindex="-1" id="modifAssistanceModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{currStudentAssistance?.name}} - {{currentCourseName}}
+                    ({{assistanceDescription[currStudentAssistance?.originalAssistance || 0]}})</h5>
+                <button type="button" class="btn-close text-reset" aria-label="Close"
+                    (click)="closeModifAssistanceModal()"></button>
+            </div>
+            <div class="modal-body pt-1">
+
+                <div class="status-legend" [ngStyle]="{'color': getStatusColor(currStudentAssistance?.assistance)}">
+                    <span *ngIf="currStudentAssistance?.assistance == 1">Presente</span>
+                    <span *ngIf="currStudentAssistance?.assistance == 2">Ausente</span>
+                    <span *ngIf="currStudentAssistance?.assistance == 3">Tarde</span>
+                    <span *ngIf="currStudentAssistance?.assistance == 4">Ausente con presencia</span>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span>Estado actual: </span>
+                        <span *ngIf="currStudentAssistance?.originalAssistance == 1">PRESENTE</span>
+                        <span *ngIf="currStudentAssistance?.originalAssistance == 2">AUSENTE</span>
+                        <span *ngIf="currStudentAssistance?.originalAssistance == 3">TARDE</span>
+                        <span *ngIf="currStudentAssistance?.originalAssistance == 4">AUSENTE CON PRESENCIA</span>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button (click)="setCurrStudentAssistanceAssistance(1)" type="button"
+                            class="btn btn-animations fixed-width-button" [ngClass]="{
+        'btn-success': currStudentAssistance?.originalAssistance != 1,
+        'disabled-modif-button': currStudentAssistance?.originalAssistance == 1,
+        'btn-success-dark': currStudentAssistance?.assistance == 1
+    }" style="font-size: 0.8rem;" [ngStyle]="{
+        'color': currStudentAssistance?.originalAssistance == 1 ? '#198754' : 'rgb(255, 255, 255)'
+    }" [disabled]="currStudentAssistance?.originalAssistance == 1">
+                            <i class="fi fi-br-check"></i>
+                        </button>
+
+                        <button (click)="setCurrStudentAssistanceAssistance(2)" type="button"
+                            class="btn btn-animations fixed-width-button" style="font-size: 0.8rem;" [ngClass]="{
+        'btn-danger': currStudentAssistance?.originalAssistance != 2,
+        'disabled-modif-button': currStudentAssistance?.originalAssistance == 2,
+        'btn-danger-dark': currStudentAssistance?.assistance == 2
+    }" [ngStyle]="{
+        'color': currStudentAssistance?.originalAssistance == 2 ? '#dc3545' : 'rgb(255, 255, 255)'
+    }" [disabled]="currStudentAssistance?.originalAssistance == 2">
+                            <i class="fi fi-br-cross"></i>
+                        </button>
+
+                        <button (click)="setCurrStudentAssistanceAssistance(3)" type="button"
+                            class="btn btn-animations fixed-width-button" [ngClass]="{
+        'orange-color': currStudentAssistance?.originalAssistance != 3,
+        'disabled-modif-button': currStudentAssistance?.originalAssistance == 3,
+        'orange-color-dark': currStudentAssistance?.assistance == 3
+    }" [ngStyle]="{
+        'color': currStudentAssistance?.originalAssistance == 3 ? 'orange' : 'rgb(255, 255, 255)'
+    }" style="font-size: 0.8rem;" [disabled]="currStudentAssistance?.originalAssistance == 3">
+                            T
+                        </button>
+
+                        <button (click)="setCurrStudentAssistanceAssistance(4)" type="button"
+                            class="btn btn-animations fixed-width-button" style="font-size: 0.8rem;" [ngClass]="{
+        'btn-primary': currStudentAssistance?.originalAssistance != 4,
+        'disabled-modif-button': currStudentAssistance?.originalAssistance == 4,
+        'btn-primary-dark': currStudentAssistance?.assistance == 4
+    }" [ngStyle]="{
+        'color': currStudentAssistance?.originalAssistance == 4 ? '#0d6efd' : 'rgb(255, 255, 255)'
+    }" [disabled]="currStudentAssistance?.originalAssistance == 4">
+                            AP
+                        </button>
+                    </div>
+                </div>
+                <textarea class="form-control mt-3" placeholder="Descripción" [(ngModel)]="descriptionText"></textarea>
+
+                <div class="mt-2" *ngIf="currStudentAssistance?.assistance === 2">
+                    <div class="d-flex justify-content-start align-items-center mb-3">
+                        <span>¿Está justificado?</span>
+                        <div class="form-check form-check-inline ms-2">
+                            <input class="form-check-input" type="radio" name="justified" id="justifiedYes"
+                                [(ngModel)]="justified" value="yes">
+                            <label class="form-check-label" for="justifiedYes">Sí</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="justified" id="justifiedNo"
+                                [(ngModel)]="justified" value="no">
+                            <label class="form-check-label" for="justifiedNo">No</label>
+                        </div>
+                    </div>
+
+                    <!-- Área de texto para la descripción de la justificación, visible solo si se selecciona "Sí" -->
+                    <div *ngIf="justified === 'yes'">
+                        <textarea [(ngModel)]="justDescriptionText" class="form-control"
+                            placeholder="Descripción de la justificación"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn  btn-animations btn-success" (click)="confirmModifStudentAssistance()"
+                    [disabled]="shouldDisableConfirmButton()">Confirmar</button>
+                <button type="button" class="btn  btn-animations btn-danger"
+                    (click)="closeModifStudentAssistance()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
